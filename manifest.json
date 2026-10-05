@@ -6,5 +6,6 @@
   "description": "Distill, tag, summarize, and cross-link notes using a local offline Ollama instance.",
   "author": "DLC-17",
   "authorUrl": "https://github.com/DLC-17",
+  "fundingUrl": "https://ko-fi.com/dlc17",
   "isDesktopOnly": true
 }

@@ -4,6 +4,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Obsidian: >= 1.5.0](https://img.shields.io/badge/Obsidian-%3E%3D%201.5.0-705dcf.svg)](https://obsidian.md)
 [![Ollama: Local & Offline](https://img.shields.io/badge/Ollama-100%25%20Offline-black.svg)](https://ollama.com)
+[![Ko-fi](https://img.shields.io/badge/Ko--fi-Support%20DLC--17-ff5e5b?logo=kofi&logoColor=white)](https://ko-fi.com/dlc17)
 
 **Vault Distiller** is a 100% offline, private AI research assistant and knowledge organizer for [Obsidian](https://obsidian.md), powered by your local [Ollama](https://ollama.com) instance.
 
@@ -150,6 +151,16 @@ npm run build
 # Development build with live watch
 npm run dev
 ```
+
+---
+
+## Support & Donations
+
+If you find Vault Distiller helpful for your research, studies, and note-taking workflow, consider supporting its continued development:
+
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/dlc17)
+
+Or visit [https://ko-fi.com/dlc17](https://ko-fi.com/dlc17). Your support helps keep this project 100% free, open-source, and offline!
 
 ---
 

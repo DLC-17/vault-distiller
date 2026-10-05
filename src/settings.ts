@@ -265,6 +265,22 @@ export class LocalOrganizerSettingTab extends PluginSettingTab {
           })
       );
 
+    // Support & Funding
+    containerEl.createEl("h2", { text: "Support Vault Distiller" });
+    new Setting(containerEl)
+      .setName("Support Development on Ko-fi")
+      .setDesc(
+        "Vault Distiller is free, open-source, and 100% offline. If it helps your research and knowledge workflows, consider buying a coffee to support development!"
+      )
+      .addButton((btn) =>
+        btn
+          .setButtonText("☕ Support on Ko-fi")
+          .setCta()
+          .onClick(() => {
+            window.open("https://ko-fi.com/dlc17", "_blank");
+          })
+      );
+
     // Auto-fetch models in the background on settings open
     this.refreshModels(false);
   }

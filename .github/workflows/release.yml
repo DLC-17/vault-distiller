@@ -1,7 +1,9 @@
-name: Release Obsidian Plugin
+name: Version and Release Plugin
 
 on:
   push:
+    branches:
+      - main
     tags:
       - "*"
 
@@ -9,12 +11,17 @@ permissions:
   contents: write
 
 jobs:
-  build:
+  auto-version-and-release:
+    # Run only if commit is not an automated release commit
+    if: "!contains(github.event.head_commit.message, '[skip ci]') && github.actor != 'github-actions[bot]'"
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -24,12 +31,38 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Bump version if pushed to main
+        id: versioning
+        run: |
+          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            node version-bump.mjs patch
+            VERSION=$(node -p "require('./package.json').version")
+            echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+            echo "IS_MAIN_PUSH=true" >> $GITHUB_OUTPUT
+          else
+            VERSION="${{ github.ref_name }}"
+            echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+            echo "IS_MAIN_PUSH=false" >> $GITHUB_OUTPUT
+          fi
+
       - name: Build plugin
         run: npm run build
+
+      - name: Commit and push version bump
+        if: steps.versioning.outputs.IS_MAIN_PUSH == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add package.json manifest.json versions.json
+          git commit -m "chore(release): bump version to ${{ steps.versioning.outputs.VERSION }} [skip ci]"
+          git tag ${{ steps.versioning.outputs.VERSION }}
+          git push origin main --tags
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ steps.versioning.outputs.VERSION }}
+          name: Vault Distiller v${{ steps.versioning.outputs.VERSION }}
           files: |
             main.js
             manifest.json
