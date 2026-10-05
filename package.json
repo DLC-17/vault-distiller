@@ -1,6 +1,6 @@
 {
   "name": "vault-distiller",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Distill, tag, summarize, and cross-link notes using a local offline Ollama instance.",
   "main": "main.js",
   "scripts": {
