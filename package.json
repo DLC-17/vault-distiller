@@ -1,0 +1,36 @@
+{
+  "name": "vault-distiller",
+  "version": "1.0.0",
+  "description": "Distill, tag, summarize, and cross-link notes using a local offline Ollama instance.",
+  "main": "main.js",
+  "scripts": {
+    "dev": "node esbuild.config.mjs",
+    "build": "node esbuild.config.mjs production"
+  },
+  "keywords": [
+    "obsidian",
+    "obsidian-plugin",
+    "ollama",
+    "local-ai",
+    "knowledge-graph",
+    "distiller",
+    "summarizer"
+  ],
+  "author": "DLC-17",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DLC-17/vault-distiller.git"
+  },
+  "bugs": {
+    "url": "https://github.com/DLC-17/vault-distiller/issues"
+  },
+  "homepage": "https://github.com/DLC-17/vault-distiller#readme",
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "esbuild": "^0.24.0",
+    "obsidian": "latest",
+    "tslib": "^2.7.0",
+    "typescript": "^5.6.0"
+  }
+}
