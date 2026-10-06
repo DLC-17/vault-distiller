@@ -160,7 +160,7 @@ If you find Vault Distiller helpful for your research, studies, and note-taking 
 
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/dlc17)
 
-Or visit [https://ko-fi.com/dlc17](https://ko-fi.com/dlc17). Your support helps keep this project 100% free, open-source, and offline!
+Or visit [https://ko-fi.com/dlc17](https://ko-fi.com/dlc17). 
 
 ---
 
