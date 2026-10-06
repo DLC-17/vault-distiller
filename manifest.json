@@ -1,7 +1,7 @@
 {
   "id": "vault-distiller",
   "name": "Vault Distiller",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "minAppVersion": "1.5.0",
   "description": "Distill, tag, summarize, and cross-link notes using a local offline Ollama instance.",
   "author": "DLC-17",
