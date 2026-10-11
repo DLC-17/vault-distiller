@@ -79,7 +79,7 @@ export class ConceptReviewModal extends Modal {
         updateCtaButton();
       };
 
-      const titleEl = topRow.createSpan({ text: item.name, cls: "vd-modal-item-title" });
+      topRow.createSpan({ text: item.name, cls: "vd-modal-item-title" });
 
       // Middle: Rationale / Reason
       if (item.reason) {

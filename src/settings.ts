@@ -1,4 +1,11 @@
-import { App, DropdownComponent, Notice, PluginSettingTab, Setting } from "obsidian";
+import {
+  App,
+  DropdownComponent,
+  Notice,
+  PluginSettingTab,
+  Setting,
+  SettingDefinitionItem,
+} from "obsidian";
 import type LocalOrganizerPlugin from "./main";
 import { fetchInstalledModels } from "./ollama";
 import { invalidateVaultContextCache } from "./vault-context";
@@ -13,11 +20,15 @@ export class LocalOrganizerSettingTab extends PluginSettingTab {
     this.plugin = plugin;
   }
 
+  override getSettingDefinitions(): SettingDefinitionItem[] {
+    return [];
+  }
+
   display(): void {
     const { containerEl } = this;
     containerEl.empty();
 
-    new Setting(containerEl).setName("Vault Distiller Settings").setHeading();
+    new Setting(containerEl).setName("General").setHeading();
     containerEl.createEl("p", {
       text: "Distill notes, extract actionable tasks, and organize vault knowledge using your local Ollama instance.",
       cls: "setting-item-description",
@@ -316,7 +327,7 @@ export class LocalOrganizerSettingTab extends PluginSettingTab {
       );
 
     // Support & Funding
-    new Setting(containerEl).setName("Support Vault Distiller").setHeading();
+    new Setting(containerEl).setName("Support & Feedback").setHeading();
     new Setting(containerEl)
       .setName("Support Development on Ko-fi")
       .setDesc(

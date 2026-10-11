@@ -197,7 +197,7 @@ export async function fetchWebContent(
   // Convert paragraphs & list items
   cleanHtml = cleanHtml.replace(/<p[^>]*>([\s\S]*?)<\/p>/gi, "\n\n$1\n\n");
   cleanHtml = cleanHtml.replace(/<li[^>]*>([\s\S]*?)<\/li>/gi, "\n- $1");
-  cleanHtml = cleanHtml.replace(/<br\s*[\/]?>/gi, "\n");
+  cleanHtml = cleanHtml.replace(/<br\b[^>]*>/gi, "\n");
 
   // Convert pre/code blocks
   cleanHtml = cleanHtml.replace(/<pre[^>]*><code[^>]*>([\s\S]*?)<\/code><\/pre>/gi, "\n```\n$1\n```\n");
