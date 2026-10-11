@@ -103,6 +103,9 @@ Open **Settings** → **Vault Distiller**:
 | **Auto-Scan Sync Conflicts** | `true` | Checks for Syncthing/Obsidian Sync conflicts on vault startup. |
 | **Default Concept Folder** | `Computer Science` | Folder where generated concept notes and technical primers are saved. |
 | **Max Context Notes / Tags** | `50` / `50` | Number of existing notes and tags supplied to Ollama to guide backlink generation. |
+| **Enable Web Features** | `true` | Toggle external web ingestion and online doc fetching completely on or off. |
+| **Whitelisted Domains** | `wikipedia.org` | Whitelist policy for web fetching. Blocks outbound network calls to unlisted domains. |
+| **Custom Documentation API URL** | *(Empty / Wikipedia)* | Alternative `{topic}` REST endpoint to fetch technical documentation summaries. |
 
 ---
 
@@ -110,12 +113,12 @@ Open **Settings** → **Vault Distiller**:
 
 | Command | Action |
 | :--- | :--- |
-| `Local Organizer: Open AI Chat Studio` | Opens the interactive Chat Studio in the right sidebar. |
-| `Local Organizer: Process Active Note` | Distills summary, extracts tasks, assigns tags, and suggests related notes. |
-| `Local Organizer: Research & Generate Concept Note...` | Opens modal to generate an in-depth reference primer for any technical topic. |
-| `Local Organizer: Bulk Organize Vault or Folder` | Batch organizes notes in a selected folder or the entire vault. |
-| `Local Organizer: Reformat Notes to Convention...` | Moves tags to the end preceded by `---` and cleans legacy markers. |
-| `Local Organizer: Scan & Merge Sync Conflicts...` | Scans for `.sync-conflict` files, displays diffs, and performs lossless smart merge. |
+| `Vault Distiller: Open AI Chat Studio` | Opens the interactive Chat Studio in the right sidebar. |
+| `Vault Distiller: Process Active Note` | Distills summary, extracts tasks, assigns tags, and suggests related notes. |
+| `Vault Distiller: Research & Generate Concept Note...` | Opens modal to generate an in-depth reference primer for any technical topic. |
+| `Vault Distiller: Bulk Organize Vault or Folder` | Batch organizes notes in a selected folder or the entire vault. |
+| `Vault Distiller: Reformat Notes to Convention...` | Moves tags to the end preceded by `---` and cleans legacy markers. |
+| `Vault Distiller: Scan & Merge Sync Conflicts...` | Scans for `.sync-conflict` files, displays diffs, and performs lossless smart merge. |
 
 ### Chat Studio Slash Commands
 * `/condense` — Generate an executive summary and key takeaways from the active note.
@@ -123,15 +126,24 @@ Open **Settings** → **Vault Distiller**:
 * `/doc <topic>` — Force strict documentation grounding on a specific library or syntax.
 * `/generate <topic>` — Draft a full reference primer with step-by-step tutorial and code examples.
 * `/format` — Reformat the active note to adhere to vault-distiller conventions.
-* `/fetch <url>` — Ingest, analyze, and summarize an external web article or arXiv research paper.
+* `/fetch <url>` — Ingest, analyze, and summarize an external web article or arXiv research paper (subject to domain whitelist).
 
 ---
 
-## Privacy & Local-First Philosophy
+## Network Access & Security Policy
 
-- **Zero Cloud Calls**: Vault Distiller communicates exclusively with your local Ollama instance at `127.0.0.1` via Obsidian's desktop API.
-- **Zero Telemetry**: No usage metrics, error reports, or telemetry data are collected.
-- **Safe Vault Modification**: All file updates are executed through Obsidian's native APIs (`app.fileManager.processFrontMatter`, `app.vault.process`, and `app.vault.trash`).
+### Why Network Access Is Needed
+Vault Distiller is local-first, but includes optional on-demand knowledge retrieval features that make outbound HTTP requests:
+1. **Authoritative Documentation Grounding (`/doc <topic>`)**: When querying specific technical frameworks or syntax where no local note exists in your vault, the assistant fetches a summary from the Wikipedia REST API (`en.wikipedia.org`) to ground Ollama's code generation against verified documentation.
+2. **Explicit Web & Paper Ingestion (`/fetch <url>`)**: When you explicitly provide a URL in Chat Studio (e.g., an article or arXiv paper link), the plugin fetches and distills the external text into a structured vault note.
+
+### Whitelist Security Policy
+To guarantee privacy and protect against unexpected outbound traffic:
+- **Strict Domain Whitelisting**: All external web calls pass through a domain whitelist. Any request to a domain not explicitly whitelisted is immediately blocked with an explanatory error notice.
+- **Initial Whitelist**: Ships with `wikipedia.org` as the **only site whitelisted initially**.
+- **User-Designated Sites**: To fetch articles or papers from additional sites (such as `arxiv.org`), you must explicitly add the target domain in **Settings → Vault Distiller → Whitelisted Domains**.
+- **No Cloud AI / No Telemetry**: All LLM processing runs strictly on your local Ollama instance (`127.0.0.1`). Zero analytics, telemetry, or user data are ever collected or sent to remote servers.
+- **Safe Vault Modification**: All file mutations operate strictly within your vault via Obsidian's official APIs (`app.fileManager.processFrontMatter`, `app.vault.process`, and `app.vault.trash`).
 
 ---
 

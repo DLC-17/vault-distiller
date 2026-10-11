@@ -250,6 +250,6 @@ export class SyncConflictModal extends Modal {
     stopBtn.className = "mod-cta";
     stopBtn.disabled = false;
     stopBtn.onclick = () => this.close();
-    new Notice(`Local Organizer: Resolved ${successCount} sync conflict file(s).`);
+    new Notice(`Vault Distiller: Resolved ${successCount} sync conflict file(s).`);
   }
 }

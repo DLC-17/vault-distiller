@@ -377,11 +377,11 @@ export class ManualConceptModal extends Modal {
 
     generateBtn.onclick = async () => {
       if (!this.conceptInput) {
-        new Notice("Local Organizer: Please enter a concept name.");
+        new Notice("Vault Distiller: Please enter a concept name.");
         return;
       }
       if (!this.plugin.settings.selectedModel) {
-        new Notice("Local Organizer: Please configure an Ollama model in Settings first.");
+        new Notice("Vault Distiller: Please configure an Ollama model in Settings first.");
         return;
       }
 
@@ -390,7 +390,7 @@ export class ManualConceptModal extends Modal {
       generateBtn.setText("Researching & Synthesizing...");
 
       const notice = new Notice(
-        `Local Organizer: Synthesizing primer for "${this.conceptInput}" with ${this.plugin.settings.selectedModel}...`,
+        `Vault Distiller: Synthesizing primer for "${this.conceptInput}" with ${this.plugin.settings.selectedModel}...`,
         0
       );
 
@@ -438,7 +438,7 @@ export class ManualConceptModal extends Modal {
       } catch (err) {
         notice.hide();
         new Notice(
-          `Local Organizer Error: ${err instanceof Error ? err.message : String(err)}`
+          `Vault Distiller Error: ${err instanceof Error ? err.message : String(err)}`
         );
         generateBtn.disabled = false;
         cancelBtn.disabled = false;

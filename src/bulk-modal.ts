@@ -108,7 +108,7 @@ export class BulkOrganizeModal extends Modal {
 
   private async startProcessing(): Promise<void> {
     if (!this.plugin.settings.selectedModel) {
-      new Notice("Local Organizer: Please select a model in Settings first.");
+      new Notice("Vault Distiller: Please select a model in Settings first.");
       return;
     }
 
@@ -141,7 +141,7 @@ export class BulkOrganizeModal extends Modal {
     }
 
     if (candidateFiles.length === 0) {
-      new Notice("Local Organizer: No eligible unorganized notes found in the selected scope.");
+      new Notice("Vault Distiller: No eligible unorganized notes found in the selected scope.");
       return;
     }
 

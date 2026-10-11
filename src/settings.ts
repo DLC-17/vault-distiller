@@ -17,9 +17,9 @@ export class LocalOrganizerSettingTab extends PluginSettingTab {
     const { containerEl } = this;
     containerEl.empty();
 
-    containerEl.createEl("h2", { text: "Local Vault Organizer Settings" });
+    containerEl.createEl("h2", { text: "Vault Distiller Settings" });
     containerEl.createEl("p", {
-      text: "Distill notes, extract actionable tasks, and discover vault cross-links using your local Ollama instance completely offline.",
+      text: "Distill notes, extract actionable tasks, and organize vault knowledge using your local Ollama instance.",
       cls: "setting-item-description",
     });
 
@@ -265,12 +265,63 @@ export class LocalOrganizerSettingTab extends PluginSettingTab {
           })
       );
 
+    // Network & Security Policy
+    containerEl.createEl("h3", { text: "Network Access & Security (Domain Whitelist)" });
+    containerEl.createEl("p", {
+      text: "Vault Distiller runs 100% locally with Ollama. Remote network access is strictly governed by this domain whitelist. Only web requests to domains matching this list are permitted; all other outbound requests are blocked.",
+      cls: "setting-item-description",
+    });
+
+    new Setting(containerEl)
+      .setName("Enable Web Features")
+      .setDesc("Toggle external web retrieval on/off. When disabled, all outgoing HTTP requests are blocked, and chat operates strictly on local vault notes.")
+      .addToggle((toggle) =>
+        toggle
+          .setValue(this.plugin.settings.enableWebFetching)
+          .onChange(async (val) => {
+            this.plugin.settings.enableWebFetching = val;
+            await this.plugin.saveSettings();
+          })
+      );
+
+    new Setting(containerEl)
+      .setName("Whitelisted Domains")
+      .setDesc("Domains permitted for technical documentation lookups and web fetching (one per line or comma-separated). Default is wikipedia.org.")
+      .addTextArea((text) => {
+        text
+          .setPlaceholder("wikipedia.org\narxiv.org")
+          .setValue((this.plugin.settings.whitelistedDomains || ["wikipedia.org"]).join("\n"))
+          .onChange(async (val) => {
+            const domains = val
+              .split(/[\n,]+/)
+              .map((d) => d.trim().toLowerCase().replace(/^https?:\/\//, "").replace(/\/.*$/, ""))
+              .filter((d) => d.length > 0);
+            this.plugin.settings.whitelistedDomains = domains.length > 0 ? domains : [];
+            await this.plugin.saveSettings();
+          });
+        text.inputEl.rows = 4;
+        text.inputEl.cols = 35;
+      });
+
+    new Setting(containerEl)
+      .setName("Custom Documentation API URL")
+      .setDesc("Alternative REST endpoint template to pull technical documentation summaries instead of Wikipedia. Use {topic} as placeholder (e.g. https://api.example.com/docs/{topic}). Leave blank to default to Wikipedia.")
+      .addText((text) =>
+        text
+          .setPlaceholder("https://en.wikipedia.org/api/rest_v1/page/summary/{topic}")
+          .setValue(this.plugin.settings.docSourceUrl || "")
+          .onChange(async (val) => {
+            this.plugin.settings.docSourceUrl = val.trim();
+            await this.plugin.saveSettings();
+          })
+      );
+
     // Support & Funding
     containerEl.createEl("h2", { text: "Support Vault Distiller" });
     new Setting(containerEl)
       .setName("Support Development on Ko-fi")
       .setDesc(
-        "Vault Distiller is free, open-source, and 100% offline. If it helps your research and knowledge workflows, consider buying a coffee to support development!"
+        "Vault Distiller is free, open-source, and private. If it helps your research and knowledge workflows, consider buying a coffee to support development!"
       )
       .addButton((btn) =>
         btn
@@ -322,12 +373,12 @@ export class LocalOrganizerSettingTab extends PluginSettingTab {
       await this.plugin.saveSettings();
       this.rebuildDropdown();
       if (showUserNotice) {
-        new Notice(`Local Organizer: Found ${models.length} installed model(s).`);
+        new Notice(`Vault Distiller: Found ${models.length} installed model(s).`);
       }
     } catch {
       if (showUserNotice) {
         new Notice(
-          `Local Organizer: Could not reach Ollama at ${this.plugin.settings.ollamaUrl}. Make sure Ollama is running.`
+          `Vault Distiller: Could not reach Ollama at ${this.plugin.settings.ollamaUrl}. Make sure Ollama is running.`
         );
       }
     }

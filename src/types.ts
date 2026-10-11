@@ -16,7 +16,12 @@ export interface LocalOrganizerSettings {
   maxNoteChars: number;
   defaultConceptFolder: string;
   autoScanSyncConflicts: boolean;
+  whitelistedDomains: string[];
+  enableWebFetching: boolean;
+  docSourceUrl: string;
 }
+
+export type VaultDistillerSettings = LocalOrganizerSettings;
 
 export const DEFAULT_SETTINGS: LocalOrganizerSettings = {
   ollamaUrl: "http://127.0.0.1:11434",
@@ -36,6 +41,9 @@ export const DEFAULT_SETTINGS: LocalOrganizerSettings = {
   maxNoteChars: 10000,
   defaultConceptFolder: "Computer Science",
   autoScanSyncConflicts: true,
+  whitelistedDomains: ["wikipedia.org"],
+  enableWebFetching: true,
+  docSourceUrl: "",
 };
 
 export const MIN_CONTENT_CHARS = 50;

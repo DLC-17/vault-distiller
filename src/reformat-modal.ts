@@ -123,7 +123,7 @@ export class ReformatConventionModal extends Modal {
     }
 
     if (candidateFiles.length === 0) {
-      new Notice("Local Organizer: No Markdown notes found in the selected folder.");
+      new Notice("Vault Distiller: No Markdown notes found in the selected folder.");
       return;
     }
 

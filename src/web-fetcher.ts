@@ -36,10 +36,53 @@ export function extractArxivId(url: string): string | null {
 }
 
 /**
+ * Checks whether a given URL is permitted under the domain whitelist policy.
+ */
+export function isUrlWhitelisted(urlStr: string, allowedDomains: string[] = []): boolean {
+  try {
+    const parsed = new URL(urlStr);
+    const hostname = parsed.hostname.toLowerCase();
+    return allowedDomains.some((domain) => {
+      const clean = domain
+        .trim()
+        .toLowerCase()
+        .replace(/^https?:\/\//, "")
+        .replace(/\/.*$/, "");
+      if (!clean) return false;
+      return hostname === clean || hostname.endsWith(`.${clean}`);
+    });
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Asserts that a URL is in the domain whitelist or throws an informative security error.
+ */
+export function assertUrlWhitelisted(urlStr: string, allowedDomains: string[] = []): void {
+  if (!isUrlWhitelisted(urlStr, allowedDomains)) {
+    let hostname = urlStr;
+    try {
+      hostname = new URL(urlStr).hostname;
+    } catch {
+      // fallback
+    }
+    throw new Error(
+      `Access to "${hostname}" is blocked: domain is not in your Whitelisted Domains list. You can whitelist it in Settings → Vault Distiller.`
+    );
+  }
+}
+
+/**
  * Fetches paper metadata from the official arXiv export API.
  */
-export async function fetchArxivMetadata(arxivId: string, originalUrl: string): Promise<FetchedContent> {
+export async function fetchArxivMetadata(
+  arxivId: string,
+  originalUrl: string,
+  allowedDomains: string[] = []
+): Promise<FetchedContent> {
   const apiUrl = `https://export.arxiv.org/api/query?id_list=${encodeURIComponent(arxivId)}`;
+  assertUrlWhitelisted(apiUrl, allowedDomains);
   
   const response = await requestUrl({
     url: apiUrl,
@@ -94,14 +137,23 @@ export async function fetchArxivMetadata(arxivId: string, originalUrl: string): 
 /**
  * Fetches and converts a standard web page into clean markdown text.
  */
-export async function fetchWebContent(url: string, maxChars: number = 10000): Promise<FetchedContent> {
+export async function fetchWebContent(
+  url: string,
+  maxChars: number = 10000,
+  allowedDomains: string[] = []
+): Promise<FetchedContent> {
+  assertUrlWhitelisted(url, allowedDomains);
+
   // 1. If it's arXiv, use the dedicated high-accuracy metadata API
   if (isArxivUrl(url)) {
     const arxivId = extractArxivId(url);
     if (arxivId) {
       try {
-        return await fetchArxivMetadata(arxivId, url);
+        return await fetchArxivMetadata(arxivId, url, allowedDomains);
       } catch (err) {
+        if (err instanceof Error && err.message.includes("blocked: domain is not in your Whitelisted Domains list")) {
+          throw err;
+        }
         console.warn("arXiv API fetch failed, falling back to standard web fetch", err);
       }
     }
@@ -192,24 +244,37 @@ export async function fetchWebContent(url: string, maxChars: number = 10000): Pr
  * Attempts to fetch authoritative technical documentation overview for a technology
  * when no local note exists in the vault.
  */
-export async function fetchTechnicalDocumentation(topic: string): Promise<FetchedContent | null> {
+export async function fetchTechnicalDocumentation(
+  topic: string,
+  allowedDomains: string[] = [],
+  customEndpoint?: string
+): Promise<FetchedContent | null> {
   const clean = topic.trim().replace(/^[/@#]+/, "");
   if (!clean) return null;
 
   // 1. If it is already a direct URL
   if (clean.startsWith("http://") || clean.startsWith("https://")) {
-    return await fetchWebContent(clean);
+    return await fetchWebContent(clean, 10000, allowedDomains);
   }
 
-  // 2. Query technical REST endpoint
+  // 2. Custom or Default API endpoint
+  const endpoint = customEndpoint?.trim()
+    ? customEndpoint.includes("{topic}")
+      ? customEndpoint.replace("{topic}", encodeURIComponent(clean))
+      : `${customEndpoint.replace(/\/$/, "")}/${encodeURIComponent(clean)}`
+    : `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(clean)}`;
+
+  if (!isUrlWhitelisted(endpoint, allowedDomains)) {
+    return null;
+  }
+
   try {
-    const apiUrl = `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(clean)}`;
     const response = await requestUrl({
-      url: apiUrl,
+      url: endpoint,
       method: "GET",
       headers: {
         "User-Agent": "ObsidianVaultDistiller/1.0 (academic knowledge assistant)",
-        Accept: "application/json",
+        Accept: "application/json, text/plain, */*",
       },
     });
 
@@ -223,6 +288,13 @@ export async function fetchTechnicalDocumentation(topic: string): Promise<Fetche
         url: pageUrl,
         title: data.title,
         text,
+        isArxiv: false,
+      };
+    } else if (response.text) {
+      return {
+        url: endpoint,
+        title: clean,
+        text: response.text.slice(0, 5000),
         isArxiv: false,
       };
     }

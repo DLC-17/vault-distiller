@@ -21,7 +21,7 @@ export default class LocalOrganizerPlugin extends Plugin {
     this.registerView(VIEW_TYPE_CHAT, (leaf) => new ChatStudioView(leaf, this));
 
     // Register Ribbon Icons
-    this.addRibbonIcon("bot", "Local Organizer: Open AI Chat Studio", () => {
+    this.addRibbonIcon("bot", "Vault Distiller: Open AI Chat Studio", () => {
       this.activateChatView();
     });
 
@@ -32,7 +32,7 @@ export default class LocalOrganizerPlugin extends Plugin {
     // Register Chat Studio Command
     this.addCommand({
       id: "open-chat-studio",
-      name: "Local Organizer: Open AI Chat Studio",
+      name: "Vault Distiller: Open AI Chat Studio",
       callback: () => {
         this.activateChatView();
       },
@@ -41,7 +41,7 @@ export default class LocalOrganizerPlugin extends Plugin {
     // Register Single Note Command
     this.addCommand({
       id: "process-active-note",
-      name: "Local Organizer: Process Active Note",
+      name: "Vault Distiller: Process Active Note",
       checkCallback: (checking: boolean) => {
         const activeFile = this.app.workspace.getActiveFile();
         if (activeFile && activeFile.extension === "md") {
@@ -57,7 +57,7 @@ export default class LocalOrganizerPlugin extends Plugin {
     // Register Bulk Organization Command
     this.addCommand({
       id: "bulk-organize-notes",
-      name: "Local Organizer: Bulk Organize Vault or Folder",
+      name: "Vault Distiller: Bulk Organize Vault or Folder",
       callback: () => {
         new BulkOrganizeModal(this.app, this).open();
       },
@@ -66,7 +66,7 @@ export default class LocalOrganizerPlugin extends Plugin {
     // Register Manual Concept Primer Command
     this.addCommand({
       id: "research-concept-note",
-      name: "Local Organizer: Research & Generate Concept Note...",
+      name: "Vault Distiller: Research & Generate Concept Note...",
       callback: () => {
         const activeFile = this.app.workspace.getActiveFile();
         new ManualConceptModal(this.app, this, activeFile).open();
@@ -76,7 +76,7 @@ export default class LocalOrganizerPlugin extends Plugin {
     // Register Reformat Notes to Convention Command
     this.addCommand({
       id: "reformat-notes-convention",
-      name: "Local Organizer: Reformat Notes to Convention (End Tags & Sourced Titles)...",
+      name: "Vault Distiller: Reformat Notes to Convention (End Tags & Sourced Titles)...",
       callback: () => {
         new ReformatConventionModal(this.app, this).open();
       },
@@ -85,7 +85,7 @@ export default class LocalOrganizerPlugin extends Plugin {
     // Register Sync Conflict Resolver Command
     this.addCommand({
       id: "scan-sync-conflicts",
-      name: "Local Organizer: Scan & Merge Sync Conflicts...",
+      name: "Vault Distiller: Scan & Merge Sync Conflicts...",
       callback: () => {
         new SyncConflictModal(this.app, this).open();
       },
@@ -100,7 +100,7 @@ export default class LocalOrganizerPlugin extends Plugin {
         const conflicts = scanVaultForSyncConflicts(this.app);
         if (conflicts.length > 0) {
           const notice = new Notice(
-            `⚠️ Local Organizer: Found ${conflicts.length} sync conflict file(s) in your vault. Click to review & merge.`,
+            `⚠️ Vault Distiller: Found ${conflicts.length} sync conflict file(s) in your vault. Click to review & merge.`,
             10000
           );
           (notice as unknown as { noticeEl?: HTMLElement }).noticeEl?.addEventListener("click", () => {
@@ -137,13 +137,13 @@ export default class LocalOrganizerPlugin extends Plugin {
   async processActiveNote(): Promise<void> {
     const activeFile = this.app.workspace.getActiveFile();
     if (!activeFile || !(activeFile instanceof TFile) || activeFile.extension !== "md") {
-      new Notice("Local Organizer: Please open a Markdown note first.");
+      new Notice("Vault Distiller: Please open a Markdown note first.");
       return;
     }
 
     if (!this.settings.selectedModel) {
       new Notice(
-        "Local Organizer: No model selected. Open Settings → Local Vault Organizer to configure."
+        "Vault Distiller: No model selected. Open Settings → Vault Distiller to configure."
       );
       return;
     }
@@ -155,12 +155,12 @@ export default class LocalOrganizerPlugin extends Plugin {
 
     if (body.length < MIN_CONTENT_CHARS) {
       new Notice(
-        "Local Organizer: Note has too little content to distill (minimum 50 characters required)."
+        "Vault Distiller: Note has too little content to distill (minimum 50 characters required)."
       );
       return;
     }
 
-    new Notice("Local Organizer: Indexing vault context...");
+    new Notice("Vault Distiller: Indexing vault context...");
     const { tags, titles, titleMap, folders } = getCachedVaultContext(
       this.app,
       activeFile,
@@ -169,7 +169,7 @@ export default class LocalOrganizerPlugin extends Plugin {
     );
 
     const processingNotice = new Notice(
-      `Local Organizer: Processing note with ${this.settings.selectedModel}... this may take 30-60s`,
+      `Vault Distiller: Processing note with ${this.settings.selectedModel}... this may take 30-60s`,
       0
     );
 
@@ -211,7 +211,7 @@ export default class LocalOrganizerPlugin extends Plugin {
 
       const elapsedSec = ((Date.now() - startMs) / 1000).toFixed(1);
       new Notice(
-        `✅ Local Organizer: Note organized in ${elapsedSec}s with ${this.settings.selectedModel}!${actionNotice}`
+        `✅ Vault Distiller: Note organized in ${elapsedSec}s with ${this.settings.selectedModel}!${actionNotice}`
       );
 
       // Prompt user to review & synthesize novel discovered concepts
@@ -224,7 +224,7 @@ export default class LocalOrganizerPlugin extends Plugin {
       }
     } catch (err) {
       new Notice(
-        `Local Organizer Error: ${err instanceof Error ? err.message : "Unexpected error"}`
+        `Vault Distiller Error: ${err instanceof Error ? err.message : "Unexpected error"}`
       );
     } finally {
       processingNotice.hide();

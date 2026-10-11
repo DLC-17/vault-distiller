@@ -403,13 +403,22 @@ export class ChatStudioView extends ItemView {
 
       // 1. SLASH COMMAND: /fetch <url> OR pasted URL
       if (rawInput.startsWith("/fetch") || (detectedUrl && !rawInput.startsWith("/"))) {
+        if (!this.plugin.settings.enableWebFetching) {
+          throw new Error(
+            "Web access is disabled in Settings. Enable 'Enable Web Features' in Settings → Vault Distiller to fetch external content."
+          );
+        }
         const targetUrl = detectedUrl || rawInput.replace(/^\/fetch\s*/i, "").trim();
         if (!targetUrl.startsWith("http")) {
           throw new Error("Please provide a valid web URL (e.g. https://arxiv.org/abs/... or https://...)");
         }
 
         this.showStatus(`Fetching content from ${targetUrl}...`);
-        const fetched = await fetchWebContent(targetUrl);
+        const fetched = await fetchWebContent(
+          targetUrl,
+          10000,
+          this.plugin.settings.whitelistedDomains
+        );
 
         this.showStatus(`Analyzing & distilling with ${this.plugin.settings.selectedModel}...`);
         const prompt = `The user wants to distill and synthesize an external resource into their Obsidian vault:
@@ -647,10 +656,14 @@ ${rawContent}
           isVaultDoc = true;
           docSourceTitle = `[[${vaultDoc.title}]]`;
           docContext = `### Vault Reference Note: [[${vaultDoc.title}]] (${vaultDoc.path})\n${vaultDoc.content}`;
-        } else {
+        } else if (this.plugin.settings.enableWebFetching) {
           // Step 2: Try fetching external authoritative documentation
           this.showStatus(`Fetching technical documentation for "${queryTopic}"...`);
-          const externalDoc = await fetchTechnicalDocumentation(queryTopic);
+          const externalDoc = await fetchTechnicalDocumentation(
+            queryTopic,
+            this.plugin.settings.whitelistedDomains,
+            this.plugin.settings.docSourceUrl
+          );
           if (externalDoc) {
             isExternalDoc = true;
             docSourceTitle = `[${externalDoc.title}](${externalDoc.url})`;
