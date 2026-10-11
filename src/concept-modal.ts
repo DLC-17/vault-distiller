@@ -284,7 +284,7 @@ export class ConceptReviewModal extends Modal {
         appendLog(`   ❌ Error creating "${item.name}": ${err instanceof Error ? err.message : String(err)}`);
       }
 
-      // Small pause between concept queries to let local GPU cool
+      // Small pause between concept queries to yield to event loop
       await new Promise((r) => setTimeout(r, 60));
     }
 

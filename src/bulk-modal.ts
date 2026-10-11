@@ -289,7 +289,7 @@ export class BulkOrganizeModal extends Modal {
         appendLog(`   ❌ Error: ${err instanceof Error ? err.message : String(err)}`);
       }
 
-      // Small pause between notes to yield to event loop and keep GPU cool
+      // Small pause between notes to yield to event loop
       await new Promise((r) => setTimeout(r, 60));
     }
 

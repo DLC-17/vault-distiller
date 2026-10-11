@@ -8,7 +8,7 @@
 
 **Vault Distiller** is a 100% offline, private AI research assistant and knowledge organizer for [Obsidian](https://obsidian.md), powered by your local [Ollama](https://ollama.com) instance.
 
-Designed from the ground up to run smoothly on consumer laptop GPUs (e.g. NVIDIA RTX 3060 6GB VRAM) and CPU environments, Vault Distiller transforms your notes into an interconnected, queryable second brain without a single byte leaving your computer.
+Designed to run smoothly on standard consumer hardware and CPU environments, Vault Distiller transforms your notes into an interconnected, queryable second brain without a single byte leaving your computer.
 
 ---
 
@@ -62,7 +62,7 @@ Designed from the ground up to run smoothly on consumer laptop GPUs (e.g. NVIDIA
 ### Prerequisites
 
 1. Install and run [Ollama](https://ollama.com).
-2. Pull a recommended lightweight model (optimized for speed and low VRAM):
+2. Pull a recommended lightweight model (optimized for speed and efficiency):
    ```bash
    # Meta's 3B model (recommended for fast, structured reasoning)
    ollama pull llama3.2:3b

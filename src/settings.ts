@@ -215,8 +215,8 @@ export class LocalOrganizerSettingTab extends PluginSettingTab {
           })
       );
 
-    // Advanced Context Limits (RTX 3060 6GB)
-    containerEl.createEl("h3", { text: "Context Window Limits (RTX 3060 6GB VRAM)" });
+    // Context Window Limits
+    containerEl.createEl("h3", { text: "Context Window Limits" });
 
     new Setting(containerEl)
       .setName("Max Vault Tags in Context")
