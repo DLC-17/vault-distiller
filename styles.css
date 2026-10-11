@@ -97,7 +97,6 @@
   background-color: var(--background-primary-alt);
   border-bottom: 1px solid var(--background-modifier-border);
   overflow-x: auto;
-  scrollbar-width: none;
 }
 
 .vd-quick-chips::-webkit-scrollbar {
@@ -279,3 +278,102 @@
 .vd-send-btn:not(:disabled):hover {
   background-color: var(--interactive-accent-hover);
 }
+
+/* ==========================================================================
+   Modal Dialog Shared Styles
+   ========================================================================== */
+
+.vd-modal-btn-row {
+  margin-top: 20px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.vd-modal-list {
+  max-height: 360px;
+  overflow-y: auto;
+  margin-bottom: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.vd-modal-card {
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 8px;
+  padding: 10px 14px;
+  background-color: var(--background-secondary);
+}
+
+.vd-modal-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+.vd-modal-item-title {
+  font-weight: 600;
+  font-size: 0.95em;
+  word-break: break-all;
+}
+
+.vd-modal-subtext {
+  font-size: 0.85em;
+  color: var(--text-muted);
+  margin-left: 26px;
+}
+
+.vd-modal-log {
+  height: 220px;
+  overflow-y: auto;
+  background-color: var(--background-secondary);
+  padding: 10px;
+  border-radius: 6px;
+  font-family: var(--font-monospace);
+  font-size: 0.85em;
+  margin-bottom: 15px;
+  white-space: pre-wrap;
+  user-select: text;
+}
+
+.vd-modal-log-line {
+  margin-bottom: 3px;
+}
+
+.vd-modal-progress {
+  width: 100%;
+  margin-bottom: 15px;
+}
+
+.vd-modal-info-box {
+  background-color: var(--background-secondary);
+  padding: 12px 16px;
+  border-radius: 6px;
+  font-size: 0.9em;
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+
+.vd-modal-info-list {
+  margin: 6px 0 0 16px;
+  padding: 0;
+}
+
+.vd-conflict-btn-row {
+  margin-top: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.vd-btn-margin-right {
+  margin-right: 6px;
+}
+
+.vd-btn-group {
+  display: flex;
+  gap: 10px;
+}
+

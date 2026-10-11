@@ -32,7 +32,7 @@ export async function updateFrontmatter(
 ): Promise<string[]> {
   let mergedTags: string[] = [];
 
-  await app.fileManager.processFrontMatter(file, (fm) => {
+  await app.fileManager.processFrontMatter(file, (fm: Record<string, unknown>) => {
     const existing = extractExistingTags(fm.tags);
     const existingLower = new Set(existing.map((t) => t.toLowerCase()));
 
@@ -474,7 +474,7 @@ export async function reformatNoteToConvention(
 
   // 3. Process frontmatter: delete fm.tags
   if (fm.tags !== undefined) {
-    await app.fileManager.processFrontMatter(file, (frontmatter) => {
+    await app.fileManager.processFrontMatter(file, (frontmatter: Record<string, unknown>) => {
       delete frontmatter.tags;
     });
   }
@@ -704,7 +704,7 @@ export async function createConceptNote(
   if (primer.brief_tutorial && primer.brief_tutorial.length > 0) {
     const steps = primer.brief_tutorial
       .map((s, idx) => {
-        const clean = s.replace(/^\d+[\.\)]\s*/, "").trim();
+        const clean = s.replace(/^\d+[.)]\s*/, "").trim();
         return `${idx + 1}. ${clean}`;
       })
       .join("\n");

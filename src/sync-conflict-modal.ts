@@ -1,4 +1,4 @@
-import { App, Modal, Notice, Setting } from "obsidian";
+import { App, Modal, Notice } from "obsidian";
 import type LocalOrganizerPlugin from "./main";
 import {
   resolveConflictPair,
@@ -50,8 +50,7 @@ export class SyncConflictModal extends Modal {
         cls: "setting-item-description",
       });
 
-      const closeContainer = contentEl.createDiv({ cls: "modal-button-container" });
-      closeContainer.style.marginTop = "20px";
+      const closeContainer = contentEl.createDiv({ cls: "modal-button-container vd-modal-btn-row" });
       const closeBtn = closeContainer.createEl("button", { text: "Close", cls: "mod-cta" });
       closeBtn.onclick = () => this.close();
       return;
@@ -63,27 +62,13 @@ export class SyncConflictModal extends Modal {
     });
 
     // Conflict list
-    const listContainer = contentEl.createDiv({ cls: "vault-distiller-conflict-list" });
-    listContainer.style.maxHeight = "360px";
-    listContainer.style.overflowY = "auto";
-    listContainer.style.marginBottom = "15px";
-    listContainer.style.display = "flex";
-    listContainer.style.flexDirection = "column";
-    listContainer.style.gap = "10px";
+    const listContainer = contentEl.createDiv({ cls: "vault-distiller-conflict-list vd-modal-list" });
 
     for (const item of this.items) {
-      const card = listContainer.createDiv({ cls: "vault-distiller-conflict-card" });
-      card.style.border = "1px solid var(--background-modifier-border)";
-      card.style.borderRadius = "8px";
-      card.style.padding = "10px 14px";
-      card.style.backgroundColor = "var(--background-secondary)";
+      const card = listContainer.createDiv({ cls: "vault-distiller-conflict-card vd-modal-card" });
 
       // Top row: Checkbox + Conflict file path
-      const topRow = card.createDiv();
-      topRow.style.display = "flex";
-      topRow.style.alignItems = "center";
-      topRow.style.gap = "10px";
-      topRow.style.marginBottom = "4px";
+      const topRow = card.createDiv({ cls: "vd-modal-row" });
 
       const cb = topRow.createEl("input", { type: "checkbox" });
       cb.checked = item.selected;
@@ -92,16 +77,10 @@ export class SyncConflictModal extends Modal {
         updateButtons();
       };
 
-      const nameEl = topRow.createEl("span", { text: item.pair.conflictFile.path });
-      nameEl.style.fontWeight = "600";
-      nameEl.style.fontSize = "0.95em";
-      nameEl.style.wordBreak = "break-all";
+      topRow.createSpan({ text: item.pair.conflictFile.path, cls: "vd-modal-item-title" });
 
       // Target row
-      const targetRow = card.createDiv();
-      targetRow.style.fontSize = "0.85em";
-      targetRow.style.color = "var(--text-muted)";
-      targetRow.style.marginLeft = "26px";
+      const targetRow = card.createDiv({ cls: "vd-modal-subtext" });
 
       if (item.pair.canonicalFile) {
         if (item.pair.isOrphaned) {
@@ -115,15 +94,10 @@ export class SyncConflictModal extends Modal {
     }
 
     // Action button container
-    const buttonRow = contentEl.createDiv({ cls: "modal-button-container" });
-    buttonRow.style.marginTop = "15px";
-    buttonRow.style.display = "flex";
-    buttonRow.style.justifyContent = "space-between";
-    buttonRow.style.alignItems = "center";
+    const buttonRow = contentEl.createDiv({ cls: "modal-button-container vd-conflict-btn-row" });
 
     const leftGroup = buttonRow.createDiv();
-    const selectAllBtn = leftGroup.createEl("button", { text: "Select All" });
-    selectAllBtn.style.marginRight = "6px";
+    const selectAllBtn = leftGroup.createEl("button", { text: "Select All", cls: "vd-btn-margin-right" });
     selectAllBtn.onclick = () => {
       this.items.forEach((i) => (i.selected = true));
       this.scanAndRender();
@@ -135,9 +109,7 @@ export class SyncConflictModal extends Modal {
       this.scanAndRender();
     };
 
-    const rightGroup = buttonRow.createDiv();
-    rightGroup.style.display = "flex";
-    rightGroup.style.gap = "10px";
+    const rightGroup = buttonRow.createDiv({ cls: "vd-btn-group" });
 
     const cancelBtn = rightGroup.createEl("button", { text: "Cancel" });
     cancelBtn.onclick = () => this.close();
@@ -172,27 +144,13 @@ export class SyncConflictModal extends Modal {
       cls: "setting-item-description",
     });
 
-    const progressBar = contentEl.createEl("progress");
+    const progressBar = contentEl.createEl("progress", { cls: "vd-modal-progress" });
     progressBar.max = queue.length;
     progressBar.value = 0;
-    progressBar.style.width = "100%";
-    progressBar.style.marginBottom = "15px";
 
-    const logContainer = contentEl.createDiv({ cls: "vault-distiller-log-container" });
-    logContainer.style.maxHeight = "260px";
-    logContainer.style.overflowY = "auto";
-    logContainer.style.padding = "10px";
-    logContainer.style.backgroundColor = "var(--background-secondary)";
-    logContainer.style.border = "1px solid var(--background-modifier-border)";
-    logContainer.style.borderRadius = "6px";
-    logContainer.style.fontFamily = "var(--font-monospace)";
-    logContainer.style.fontSize = "0.85em";
-    logContainer.style.lineHeight = "1.5";
-    logContainer.style.marginBottom = "20px";
+    const logContainer = contentEl.createDiv({ cls: "vault-distiller-log-container vd-modal-log" });
 
-    const buttonRow = contentEl.createDiv({ cls: "modal-button-container" });
-    buttonRow.style.display = "flex";
-    buttonRow.style.justifyContent = "flex-end";
+    const buttonRow = contentEl.createDiv({ cls: "modal-button-container vd-modal-btn-row" });
 
     const stopBtn = buttonRow.createEl("button", { text: "Stop" });
     stopBtn.onclick = () => {
@@ -202,12 +160,11 @@ export class SyncConflictModal extends Modal {
     };
 
     const appendLog = (msg: string) => {
-      const line = logContainer.createEl("div", { text: msg });
-      line.style.marginBottom = "3px";
+      logContainer.createDiv({ text: msg, cls: "vd-modal-log-line" });
       logContainer.scrollTop = logContainer.scrollHeight;
     };
 
-    this.runQueue(queue, progressBar, statusText, appendLog, stopBtn);
+    void this.runQueue(queue, progressBar, statusText, appendLog, stopBtn);
   }
 
   private async runQueue(

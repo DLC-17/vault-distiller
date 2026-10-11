@@ -64,27 +64,13 @@ export class ConceptReviewModal extends Modal {
     const folders = getVaultFolders(this.app);
 
     // List of concepts
-    const listContainer = contentEl.createDiv({ cls: "vault-distiller-concept-list" });
-    listContainer.style.maxHeight = "360px";
-    listContainer.style.overflowY = "auto";
-    listContainer.style.marginBottom = "20px";
-    listContainer.style.display = "flex";
-    listContainer.style.flexDirection = "column";
-    listContainer.style.gap = "12px";
+    const listContainer = contentEl.createDiv({ cls: "vault-distiller-concept-list vd-modal-list" });
 
     for (const item of this.items) {
-      const card = listContainer.createDiv({ cls: "vault-distiller-concept-card" });
-      card.style.border = "1px solid var(--background-modifier-border)";
-      card.style.borderRadius = "8px";
-      card.style.padding = "12px 16px";
-      card.style.backgroundColor = "var(--background-secondary)";
+      const card = listContainer.createDiv({ cls: "vault-distiller-concept-card vd-modal-card" });
 
       // Top row: Checkbox + Concept Name
-      const topRow = card.createDiv();
-      topRow.style.display = "flex";
-      topRow.style.alignItems = "center";
-      topRow.style.gap = "10px";
-      topRow.style.marginBottom = "6px";
+      const topRow = card.createDiv({ cls: "vd-modal-row" });
 
       const cb = topRow.createEl("input", { type: "checkbox" });
       cb.checked = item.selected;
@@ -93,31 +79,19 @@ export class ConceptReviewModal extends Modal {
         updateCtaButton();
       };
 
-      const titleEl = topRow.createEl("span", { text: item.name });
-      titleEl.style.fontWeight = "600";
-      titleEl.style.fontSize = "1.05em";
+      const titleEl = topRow.createSpan({ text: item.name, cls: "vd-modal-item-title" });
 
       // Middle: Rationale / Reason
       if (item.reason) {
-        const reasonEl = card.createEl("p", { text: item.reason });
-        reasonEl.style.fontSize = "0.9em";
-        reasonEl.style.color = "var(--text-muted)";
-        reasonEl.style.margin = "0 0 10px 28px";
+        card.createEl("p", { text: item.reason, cls: "vd-modal-subtext" });
       }
 
       // Bottom row: Folder selector
-      const folderRow = card.createDiv();
-      folderRow.style.display = "flex";
-      folderRow.style.alignItems = "center";
-      folderRow.style.gap = "8px";
-      folderRow.style.marginLeft = "28px";
-      folderRow.style.fontSize = "0.88em";
+      const folderRow = card.createDiv({ cls: "vd-modal-row vd-modal-subtext" });
 
-      folderRow.createEl("span", { text: "Destination Folder:" });
+      folderRow.createSpan({ text: "Destination Folder:" });
 
       const folderSelect = folderRow.createEl("select");
-      folderSelect.style.padding = "2px 8px";
-      folderSelect.style.borderRadius = "4px";
 
       // Options
       const rootOpt = folderSelect.createEl("option", { text: "/ (Root of Vault)", value: "" });
@@ -136,10 +110,7 @@ export class ConceptReviewModal extends Modal {
     }
 
     // Action button row
-    const buttonRow = contentEl.createDiv({ cls: "modal-button-container" });
-    buttonRow.style.display = "flex";
-    buttonRow.style.justifyContent = "flex-end";
-    buttonRow.style.gap = "10px";
+    const buttonRow = contentEl.createDiv({ cls: "modal-button-container vd-modal-btn-row" });
 
     const cancelBtn = buttonRow.createEl("button", { text: "Skip / Close" });
     cancelBtn.onclick = () => this.close();
@@ -174,27 +145,15 @@ export class ConceptReviewModal extends Modal {
       text: `Preparing to research & generate ${queue.length} concept note(s)...`,
     });
 
-    const progressBar = contentEl.createEl("progress");
+    const progressBar = contentEl.createEl("progress", { cls: "vd-modal-progress" });
     progressBar.max = queue.length;
     progressBar.value = 0;
-    progressBar.style.width = "100%";
-    progressBar.style.marginBottom = "15px";
 
     const logContainer = contentEl.createDiv({
-      cls: "vault-distiller-concept-log",
+      cls: "vault-distiller-concept-log vd-modal-log",
     });
-    logContainer.style.height = "220px";
-    logContainer.style.overflowY = "auto";
-    logContainer.style.backgroundColor = "var(--background-secondary)";
-    logContainer.style.padding = "10px";
-    logContainer.style.borderRadius = "6px";
-    logContainer.style.fontFamily = "monospace";
-    logContainer.style.fontSize = "0.85em";
-    logContainer.style.marginBottom = "15px";
 
-    const buttonRow = contentEl.createDiv({ cls: "modal-button-container" });
-    buttonRow.style.display = "flex";
-    buttonRow.style.justifyContent = "flex-end";
+    const buttonRow = contentEl.createDiv({ cls: "modal-button-container vd-modal-btn-row" });
 
     const stopBtn = buttonRow.createEl("button", {
       text: "Cancel Remaining",
@@ -208,12 +167,11 @@ export class ConceptReviewModal extends Modal {
     };
 
     const appendLog = (msg: string) => {
-      const line = logContainer.createEl("div", { text: msg });
-      line.style.marginBottom = "3px";
+      logContainer.createDiv({ text: msg, cls: "vd-modal-log-line" });
       logContainer.scrollTop = logContainer.scrollHeight;
     };
 
-    this.runQueue(queue, progressBar, statusText, appendLog, stopBtn);
+    void this.runQueue(queue, progressBar, statusText, appendLog, stopBtn);
   }
 
   private async runQueue(
@@ -285,7 +243,7 @@ export class ConceptReviewModal extends Modal {
       }
 
       // Small pause between concept queries to yield to event loop
-      await new Promise((r) => setTimeout(r, 60));
+      await new Promise((r) => window.setTimeout(r, 60));
     }
 
     this.isRunning = false;
@@ -361,11 +319,7 @@ export class ManualConceptModal extends Modal {
     }
 
     // Action buttons
-    const buttonRow = contentEl.createDiv({ cls: "modal-button-container" });
-    buttonRow.style.marginTop = "20px";
-    buttonRow.style.display = "flex";
-    buttonRow.style.justifyContent = "flex-end";
-    buttonRow.style.gap = "10px";
+    const buttonRow = contentEl.createDiv({ cls: "modal-button-container vd-modal-btn-row" });
 
     const cancelBtn = buttonRow.createEl("button", { text: "Cancel" });
     cancelBtn.onclick = () => this.close();

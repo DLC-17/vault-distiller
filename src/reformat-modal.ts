@@ -64,21 +64,13 @@ export class ReformatConventionModal extends Modal {
         });
       });
 
-    const infoBox = contentEl.createDiv({ cls: "vault-distiller-reformat-info" });
-    infoBox.style.backgroundColor = "var(--background-secondary)";
-    infoBox.style.padding = "12px 16px";
-    infoBox.style.borderRadius = "6px";
-    infoBox.style.fontSize = "0.9em";
-    infoBox.style.marginBottom = "20px";
-    infoBox.style.lineHeight = "1.5";
+    const infoBox = contentEl.createDiv({ cls: "vault-distiller-reformat-info vd-modal-info-box" });
 
-    infoBox.createEl("div", {
+    infoBox.createDiv({
       text: "✨ What this reformat will do:",
       cls: "setting-item-name",
     });
-    const ul = infoBox.createEl("ul");
-    ul.style.margin = "6px 0 0 16px";
-    ul.style.padding = "0";
+    const ul = infoBox.createEl("ul", { cls: "vd-modal-info-list" });
     ul.createEl("li", {
       text: "Remove 'tags:' from YAML frontmatter so tags do not clutter the top of notes.",
     });
@@ -93,10 +85,7 @@ export class ReformatConventionModal extends Modal {
     });
 
     // Action button row
-    const buttonRow = contentEl.createDiv({ cls: "modal-button-container" });
-    buttonRow.style.display = "flex";
-    buttonRow.style.justifyContent = "flex-end";
-    buttonRow.style.gap = "10px";
+    const buttonRow = contentEl.createDiv({ cls: "modal-button-container vd-modal-btn-row" });
 
     const cancelBtn = buttonRow.createEl("button", { text: "Cancel" });
     cancelBtn.onclick = () => this.close();
@@ -140,27 +129,15 @@ export class ReformatConventionModal extends Modal {
       text: `Preparing to reformat ${queue.length} note(s)...`,
     });
 
-    const progressBar = contentEl.createEl("progress");
+    const progressBar = contentEl.createEl("progress", { cls: "vd-modal-progress" });
     progressBar.max = queue.length;
     progressBar.value = 0;
-    progressBar.style.width = "100%";
-    progressBar.style.marginBottom = "15px";
 
     const logContainer = contentEl.createDiv({
-      cls: "vault-distiller-bulk-log",
+      cls: "vault-distiller-bulk-log vd-modal-log",
     });
-    logContainer.style.height = "240px";
-    logContainer.style.overflowY = "auto";
-    logContainer.style.backgroundColor = "var(--background-secondary)";
-    logContainer.style.padding = "10px";
-    logContainer.style.borderRadius = "6px";
-    logContainer.style.fontFamily = "monospace";
-    logContainer.style.fontSize = "0.85em";
-    logContainer.style.marginBottom = "15px";
 
-    const buttonRow = contentEl.createDiv({ cls: "modal-button-container" });
-    buttonRow.style.display = "flex";
-    buttonRow.style.justifyContent = "flex-end";
+    const buttonRow = contentEl.createDiv({ cls: "modal-button-container vd-modal-btn-row" });
 
     const stopBtn = buttonRow.createEl("button", {
       text: "Stop / Cancel",
@@ -174,12 +151,11 @@ export class ReformatConventionModal extends Modal {
     };
 
     const appendLog = (msg: string) => {
-      const line = logContainer.createEl("div", { text: msg });
-      line.style.marginBottom = "3px";
+      logContainer.createDiv({ text: msg, cls: "vd-modal-log-line" });
       logContainer.scrollTop = logContainer.scrollHeight;
     };
 
-    this.runQueue(queue, progressBar, statusText, appendLog, stopBtn);
+    void this.runQueue(queue, progressBar, statusText, appendLog, stopBtn);
   }
 
   private async runQueue(
@@ -228,7 +204,7 @@ export class ReformatConventionModal extends Modal {
       }
 
       // Small yield to UI
-      await new Promise((r) => setTimeout(r, 20));
+      await new Promise((r) => window.setTimeout(r, 20));
     }
 
     this.isRunning = false;

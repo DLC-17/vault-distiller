@@ -9,6 +9,8 @@ on:
 
 permissions:
   contents: write
+  id-token: write
+  attestations: write
 
 jobs:
   auto-version-and-release:
@@ -57,6 +59,14 @@ jobs:
           git commit -m "chore(release): bump version to ${{ steps.versioning.outputs.VERSION }} [skip ci]"
           git tag ${{ steps.versioning.outputs.VERSION }}
           git push origin main --tags
+
+      - name: Attest Build Provenance
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: |
+            main.js
+            manifest.json
+            styles.css
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2

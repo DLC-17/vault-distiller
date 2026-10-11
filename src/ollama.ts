@@ -17,9 +17,9 @@ export async function requestUrlWithTimeout(
   params: RequestUrlParam,
   timeoutMs: number = OLLAMA_TIMEOUT_MS
 ): Promise<RequestUrlResponse> {
-  let timer: ReturnType<typeof setTimeout> | undefined;
+  let timer: number | undefined;
   const timeoutPromise = new Promise<never>((_, reject) => {
-    timer = setTimeout(() => {
+    timer = window.setTimeout(() => {
       reject(
         new Error(
           `Ollama request timed out after ${timeoutMs / 1000}s. Check if your model is overloaded or stalled.`
@@ -32,7 +32,7 @@ export async function requestUrlWithTimeout(
     return await Promise.race([requestUrl(params), timeoutPromise]);
   } finally {
     if (timer !== undefined) {
-      clearTimeout(timer);
+      window.clearTimeout(timer);
     }
   }
 }
@@ -51,14 +51,21 @@ export async function fetchInstalledModels(ollamaUrl: string): Promise<string[]>
     10_000
   );
 
-  const data = response.json;
+  interface OllamaTagsResponse {
+    models?: Array<{
+      name?: string;
+      capabilities?: string[];
+    }>;
+  }
+
+  const data = response.json as OllamaTagsResponse | undefined;
   if (!data?.models || !Array.isArray(data.models)) {
     throw new Error("Unexpected response structure from Ollama /api/tags");
   }
 
   // Filter out models that cannot be used for chat (e.g. embedding-only models)
   return data.models
-    .filter((m: { name?: string; capabilities?: string[] }) => {
+    .filter((m) => {
       const name = (m.name || "").toLowerCase();
       if (name.includes("embed") || name.includes("bge-") || name.includes("bert")) {
         return false;
@@ -68,7 +75,8 @@ export async function fetchInstalledModels(ollamaUrl: string): Promise<string[]>
       }
       return true;
     })
-    .map((m: { name: string }) => m.name);
+    .map((m) => m.name || "")
+    .filter(Boolean);
 }
 
 /**
@@ -123,11 +131,21 @@ export function extractTopLevelJson(raw: string): string {
   return unfenced;
 }
 
+interface DistilledResultInput {
+  clean_title?: unknown;
+  tags?: unknown;
+  distilled_summary?: unknown;
+  suggested_links?: unknown;
+  open_questions_or_todos?: unknown;
+  suggested_folder?: unknown;
+  discovered_concepts?: unknown;
+}
+
 /**
  * Ensures all fields of a DistilledResult are strictly validated and normalized,
  * guaranteeing that tags, open_questions_or_todos, and suggested_links are ALWAYS iterable arrays.
  */
-function normalizeDistilledResult(parsed: any): DistilledResult {
+function normalizeDistilledResult(parsed: DistilledResultInput | null | undefined): DistilledResult {
   let tags: string[] = [];
   if (Array.isArray(parsed?.tags)) {
     tags = parsed.tags
@@ -154,9 +172,16 @@ function normalizeDistilledResult(parsed: any): DistilledResult {
   let links: OllamaSuggestedLink[] = [];
   if (Array.isArray(parsed?.suggested_links)) {
     links = parsed.suggested_links
-      .filter((l: any) => l && typeof l.title === "string" && l.title.trim().length > 0)
-      .map((l: any) => ({
-        title: String(l.title).trim(),
+      .filter(
+        (l: unknown): l is { title: string; reason?: string } =>
+          Boolean(
+            l &&
+              typeof (l as { title?: unknown }).title === "string" &&
+              (l as { title: string }).title.trim().length > 0
+          )
+      )
+      .map((l) => ({
+        title: l.title.trim(),
         reason: typeof l.reason === "string" ? l.reason.trim() : "",
       }));
   }
@@ -172,7 +197,7 @@ function normalizeDistilledResult(parsed: any): DistilledResult {
               (c as { name: string }).name.trim().length > 1
           )
       )
-      .map((c: { name: string; suggested_folder?: string; reason?: string }) => ({
+      .map((c) => ({
         name: c.name.trim(),
         suggested_folder: typeof c.suggested_folder === "string" ? c.suggested_folder.trim() : "",
         reason: typeof c.reason === "string" ? c.reason.trim() : "",
@@ -198,7 +223,7 @@ function normalizeDistilledResult(parsed: any): DistilledResult {
 export function parseJsonRobust(raw: string): DistilledResult {
   // 1. Try direct parse
   try {
-    const direct = JSON.parse(raw);
+    const direct = JSON.parse(raw) as DistilledResultInput;
     if (direct && typeof direct === "object") {
       return normalizeDistilledResult(direct);
     }
@@ -209,7 +234,7 @@ export function parseJsonRobust(raw: string): DistilledResult {
   // 2. Try state-machine extraction
   const extracted = extractTopLevelJson(raw);
   try {
-    const parsed = JSON.parse(extracted);
+    const parsed = JSON.parse(extracted) as DistilledResultInput;
     return normalizeDistilledResult(parsed);
   } catch {
     // 3. Fallback: even if JSON was truncated by context limit, extract partial fields
@@ -329,8 +354,8 @@ Produce the JSON distillation:`;
       detail = errObj.json.error;
     } else if (errObj?.text) {
       try {
-        const parsed = JSON.parse(errObj.text);
-        if (parsed?.error) detail = parsed.error;
+        const parsed = JSON.parse(errObj.text) as { error?: string };
+        if (typeof parsed?.error === "string") detail = parsed.error;
       } catch {
         detail = errObj.text;
       }
@@ -338,7 +363,8 @@ Produce the JSON distillation:`;
     throw new Error(`Ollama Error (${model}): ${detail}`);
   }
 
-  const rawJson = response.json?.message?.content;
+  const resData = response.json as { message?: { content?: string } } | undefined;
+  const rawJson = resData?.message?.content;
   if (!rawJson || typeof rawJson !== "string") {
     throw new Error("Empty or invalid response received from Ollama chat endpoint.");
   }
@@ -444,14 +470,25 @@ Generate the comprehensive JSON reference primer:`;
     throw new Error(`Ollama Error generating primer (${model}): ${detail}`);
   }
 
-  const rawJson = response.json?.message?.content;
+  const resData = response.json as { message?: { content?: string } } | undefined;
+  const rawJson = resData?.message?.content;
   if (!rawJson || typeof rawJson !== "string") {
     throw new Error("Empty response received from Ollama for concept primer.");
   }
 
   const extracted = extractTopLevelJson(rawJson);
   try {
-    const parsed = JSON.parse(extracted);
+    interface PrimerJson {
+      title?: unknown;
+      tags?: unknown;
+      overview?: unknown;
+      core_principles?: unknown;
+      brief_tutorial?: unknown;
+      code_or_syntax_example?: unknown;
+      suggested_folder?: unknown;
+      suggested_links?: unknown;
+    }
+    const parsed = JSON.parse(extracted) as PrimerJson;
     return {
       title:
         typeof parsed.title === "string" && parsed.title.trim()
@@ -474,7 +511,16 @@ Generate the comprehensive JSON reference primer:`;
         typeof parsed.code_or_syntax_example === "string" ? parsed.code_or_syntax_example : "",
       suggested_folder:
         typeof parsed.suggested_folder === "string" ? parsed.suggested_folder.trim() : "",
-      suggested_links: Array.isArray(parsed.suggested_links) ? parsed.suggested_links : [],
+      suggested_links: Array.isArray(parsed.suggested_links)
+        ? parsed.suggested_links
+            .filter((l: unknown): l is { title: string; reason?: string } =>
+              Boolean(l && typeof (l as { title?: unknown }).title === "string")
+            )
+            .map((l) => ({
+              title: l.title.trim(),
+              reason: typeof l.reason === "string" ? l.reason.trim() : "",
+            }))
+        : [],
     };
   } catch {
     throw new Error(
@@ -525,7 +571,8 @@ export async function sendOllamaChat(
     throw new Error(`Ollama Chat Error (${model}): ${detail}`);
   }
 
-  const reply = response.json?.message?.content;
+  const chatRes = response.json as { message?: { content?: string } } | undefined;
+  const reply = chatRes?.message?.content;
   if (!reply || typeof reply !== "string") {
     throw new Error("Empty response received from Ollama chat.");
   }

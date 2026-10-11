@@ -90,11 +90,7 @@ export class BulkOrganizeModal extends Modal {
       );
 
     // Action Buttons
-    const buttonRow = contentEl.createDiv({ cls: "modal-button-container" });
-    buttonRow.style.marginTop = "20px";
-    buttonRow.style.display = "flex";
-    buttonRow.style.justifyContent = "flex-end";
-    buttonRow.style.gap = "10px";
+    const buttonRow = contentEl.createDiv({ cls: "modal-button-container vd-modal-btn-row" });
 
     const cancelBtn = buttonRow.createEl("button", { text: "Cancel" });
     cancelBtn.onclick = () => this.close();
@@ -159,27 +155,15 @@ export class BulkOrganizeModal extends Modal {
       text: `Preparing to process ${queue.length} note(s)...`,
     });
 
-    const progressBar = contentEl.createEl("progress");
+    const progressBar = contentEl.createEl("progress", { cls: "vd-modal-progress" });
     progressBar.max = queue.length;
     progressBar.value = 0;
-    progressBar.style.width = "100%";
-    progressBar.style.marginBottom = "15px";
 
     const logContainer = contentEl.createDiv({
-      cls: "vault-distiller-bulk-log",
+      cls: "vault-distiller-bulk-log vd-modal-log",
     });
-    logContainer.style.height = "220px";
-    logContainer.style.overflowY = "auto";
-    logContainer.style.backgroundColor = "var(--background-secondary)";
-    logContainer.style.padding = "10px";
-    logContainer.style.borderRadius = "6px";
-    logContainer.style.fontFamily = "monospace";
-    logContainer.style.fontSize = "0.85em";
-    logContainer.style.marginBottom = "15px";
 
-    const buttonRow = contentEl.createDiv({ cls: "modal-button-container" });
-    buttonRow.style.display = "flex";
-    buttonRow.style.justifyContent = "flex-end";
+    const buttonRow = contentEl.createDiv({ cls: "modal-button-container vd-modal-btn-row" });
 
     const stopBtn = buttonRow.createEl("button", {
       text: "Stop / Cancel",
@@ -193,12 +177,11 @@ export class BulkOrganizeModal extends Modal {
     };
 
     const appendLog = (msg: string) => {
-      const line = logContainer.createEl("div", { text: msg });
-      line.style.marginBottom = "3px";
+      logContainer.createDiv({ text: msg, cls: "vd-modal-log-line" });
       logContainer.scrollTop = logContainer.scrollHeight;
     };
 
-    this.runQueue(queue, progressBar, statusText, appendLog, stopBtn);
+    void this.runQueue(queue, progressBar, statusText, appendLog, stopBtn);
   }
 
   private async runQueue(
@@ -290,7 +273,7 @@ export class BulkOrganizeModal extends Modal {
       }
 
       // Small pause between notes to yield to event loop
-      await new Promise((r) => setTimeout(r, 60));
+      await new Promise((r) => window.setTimeout(r, 60));
     }
 
     this.isRunning = false;

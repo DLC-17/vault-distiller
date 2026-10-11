@@ -1,5 +1,4 @@
 import {
-  App,
   ItemView,
   MarkdownRenderer,
   MarkdownView,
@@ -13,9 +12,7 @@ import { ChatMessage, sendOllamaChat } from "./ollama";
 import {
   findRelevantVaultDocumentation,
   findVaultMentions,
-  getCachedVaultContext,
   sanitizeNoteBody,
-  VaultDocumentationDoc,
 } from "./vault-context";
 import {
   extractUrlFromText,
@@ -103,7 +100,7 @@ export class ChatStudioView extends ItemView {
     const header = container.createDiv({ cls: "vd-chat-header" });
 
     const titleEl = header.createDiv({ cls: "vd-chat-title" });
-    titleEl.createEl("span", { text: "AI Studio", cls: "vd-chat-title-text" });
+    titleEl.createSpan({ text: "AI Studio", cls: "vd-chat-title-text" });
 
     this.contextPillEl = header.createDiv({ cls: "vd-context-pill" });
     this.updateContextPill();
@@ -139,7 +136,7 @@ export class ChatStudioView extends ItemView {
     this.contextPillEl.empty();
 
     if (!this.autoGroundActiveNote) {
-      this.contextPillEl.createEl("span", { text: "🌐 Vault Context Only" });
+      this.contextPillEl.createSpan({ text: "🌐 Vault Context Only" });
       this.contextPillEl.addClass("vd-pill-detached");
       this.contextPillEl.removeClass("vd-pill-active");
       return;
@@ -147,12 +144,12 @@ export class ChatStudioView extends ItemView {
 
     const activeFile = this.getCurrentFile();
     if (activeFile && activeFile.extension === "md") {
-      this.contextPillEl.createEl("span", { text: `📄 [[${activeFile.basename}]]` });
+      this.contextPillEl.createSpan({ text: `📄 [[${activeFile.basename}]]` });
       this.contextPillEl.addClass("vd-pill-active");
       this.contextPillEl.removeClass("vd-pill-detached");
       this.contextPillEl.title = `Grounded on ${activeFile.path}. Click to detach.`;
     } else {
-      this.contextPillEl.createEl("span", { text: "📚 No Note Open" });
+      this.contextPillEl.createSpan({ text: "📚 No Note Open" });
       this.contextPillEl.addClass("vd-pill-detached");
       this.contextPillEl.removeClass("vd-pill-active");
       this.contextPillEl.title = "Open a Markdown note to ground conversation.";
@@ -185,7 +182,7 @@ export class ChatStudioView extends ItemView {
           this.textareaEl.focus();
         } else {
           this.textareaEl.value = chip.cmd;
-          this.handleSendMessage();
+          void this.handleSendMessage();
         }
       });
     }
@@ -205,7 +202,7 @@ export class ChatStudioView extends ItemView {
     const inputWrapper = container.createDiv({ cls: "vd-chat-input-wrapper" });
 
     this.statusBarEl = inputWrapper.createDiv({ cls: "vd-chat-status" });
-    this.statusBarEl.style.display = "none";
+    this.statusBarEl.setCssStyles({ display: "none" });
 
     const inputRow = inputWrapper.createDiv({ cls: "vd-input-row" });
 
@@ -217,14 +214,14 @@ export class ChatStudioView extends ItemView {
     this.textareaEl.addEventListener("keydown", (e: KeyboardEvent) => {
       if (e.key === "Enter" && !e.shiftKey) {
         e.preventDefault();
-        this.handleSendMessage();
+        void this.handleSendMessage();
       }
     });
 
     // Auto-expand textarea
     this.textareaEl.addEventListener("input", () => {
-      this.textareaEl.style.height = "auto";
-      this.textareaEl.style.height = `${Math.min(this.textareaEl.scrollHeight, 140)}px`;
+      this.textareaEl.setCssStyles({ height: "auto" });
+      this.textareaEl.setCssStyles({ height: `${Math.min(this.textareaEl.scrollHeight, 140)}px` });
     });
 
     this.sendButtonEl = inputRow.createEl("button", {
@@ -234,7 +231,7 @@ export class ChatStudioView extends ItemView {
     setIcon(this.sendButtonEl, "send");
 
     this.sendButtonEl.addEventListener("click", () => {
-      this.handleSendMessage();
+      void this.handleSendMessage();
     });
   }
 
@@ -256,7 +253,7 @@ export class ChatStudioView extends ItemView {
       }
 
       const body = bubble.createDiv({ cls: "vd-bubble-body markdown-rendered" });
-      MarkdownRenderer.render(this.app, msg.content, body, "", this);
+      void MarkdownRenderer.render(this.app, msg.content, body, "", this);
 
       // Assistant action bar
       if (msg.role === "assistant" && i > 0) {
@@ -297,14 +294,16 @@ export class ChatStudioView extends ItemView {
       title: "Append response to bottom of active note",
     });
     setIcon(appendBtn, "plus-circle");
-    appendBtn.addEventListener("click", async () => {
-      const activeFile = this.getCurrentFile();
-      if (activeFile && activeFile.extension === "md") {
-        await this.app.vault.append(activeFile, `\n\n---\n${content}\n`);
-        new Notice(`Appended to ${activeFile.basename}.`);
-      } else {
-        new Notice("Please open a Markdown note first.");
-      }
+    appendBtn.addEventListener("click", () => {
+      void (async () => {
+        const activeFile = this.getCurrentFile();
+        if (activeFile && activeFile.extension === "md") {
+          await this.app.vault.append(activeFile, `\n\n---\n${content}\n`);
+          new Notice(`Appended to ${activeFile.basename}.`);
+        } else {
+          new Notice("Please open a Markdown note first.");
+        }
+      })();
     });
 
     // 3. Save as New Note
@@ -314,8 +313,8 @@ export class ChatStudioView extends ItemView {
       title: "Create a new note from this response",
     });
     setIcon(createBtn, "file-plus");
-    createBtn.addEventListener("click", async () => {
-      await this.saveResponseAsNote(content);
+    createBtn.addEventListener("click", () => {
+      void this.saveResponseAsNote(content);
     });
 
     // 4. Copy Markdown
@@ -325,9 +324,11 @@ export class ChatStudioView extends ItemView {
       title: "Copy markdown to clipboard",
     });
     setIcon(copyBtn, "copy");
-    copyBtn.addEventListener("click", async () => {
-      await navigator.clipboard.writeText(content);
-      new Notice("Copied markdown to clipboard!");
+    copyBtn.addEventListener("click", () => {
+      void (async () => {
+        await navigator.clipboard.writeText(content);
+        new Notice("Copied markdown to clipboard!");
+      })();
     });
   }
 
@@ -387,7 +388,7 @@ export class ChatStudioView extends ItemView {
     }
 
     this.textareaEl.value = "";
-    this.textareaEl.style.height = "auto";
+    this.textareaEl.setCssStyles({ height: "auto" });
     this.isProcessing = true;
     this.sendButtonEl.disabled = true;
 
@@ -774,7 +775,7 @@ Ground your answers in the active note where relevant. Use [[wikilinks]] when re
         const chatHistory: ChatMessage[] = [
           { role: "system", content: systemPrompt },
           ...this.messages.map((m) => ({
-            role: m.role as "user" | "assistant",
+            role: m.role,
             content: m.content,
           })),
         ];
@@ -933,13 +934,13 @@ Ground your answers in the active note where relevant. Use [[wikilinks]] when re
   private showStatus(text: string): void {
     if (this.statusBarEl) {
       this.statusBarEl.setText(text);
-      this.statusBarEl.style.display = "block";
+      this.statusBarEl.setCssStyles({ display: "block" });
     }
   }
 
   private hideStatus(): void {
     if (this.statusBarEl) {
-      this.statusBarEl.style.display = "none";
+      this.statusBarEl.setCssStyles({ display: "none" });
     }
   }
 }

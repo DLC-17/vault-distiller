@@ -247,7 +247,7 @@ export function smartMergeNotes(canonicalContent: string, conflictContent: strin
   }
 
   // Append any sections that only existed in conflict file
-  for (const [_, sB] of secBMap) {
+  for (const sB of secBMap.values()) {
     if (sB.heading || sB.lines.some((l) => l.trim().length > 0)) {
       mergedSections.push(sB);
     }
@@ -305,7 +305,7 @@ export async function resolveConflictPair(
 
     if (canonicalContent.trim() === conflictContent.trim()) {
       // Identical file: safely trash the duplicate conflict file
-      await app.vault.trash(conflictFile, true);
+      await app.fileManager.trashFile(conflictFile);
       return {
         conflictPath: conflictFile.path,
         canonicalPath: canonicalFile.path,
@@ -321,7 +321,7 @@ export async function resolveConflictPair(
     await app.vault.modify(canonicalFile, merged);
 
     // Safely trash conflict file
-    await app.vault.trash(conflictFile, true);
+    await app.fileManager.trashFile(conflictFile);
 
     return {
       conflictPath: conflictFile.path,

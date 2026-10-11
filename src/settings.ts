@@ -13,11 +13,11 @@ export class LocalOrganizerSettingTab extends PluginSettingTab {
     this.plugin = plugin;
   }
 
-  async display(): Promise<void> {
+  display(): void {
     const { containerEl } = this;
     containerEl.empty();
 
-    containerEl.createEl("h2", { text: "Vault Distiller Settings" });
+    new Setting(containerEl).setName("Vault Distiller Settings").setHeading();
     containerEl.createEl("p", {
       text: "Distill notes, extract actionable tasks, and organize vault knowledge using your local Ollama instance.",
       cls: "setting-item-description",
@@ -53,8 +53,8 @@ export class LocalOrganizerSettingTab extends PluginSettingTab {
         button
           .setButtonText("Fetch / Refresh Models")
           .setCta()
-          .onClick(async () => {
-            await this.refreshModels(true);
+          .onClick(() => {
+            void this.refreshModels(true);
           })
       );
 
@@ -66,7 +66,6 @@ export class LocalOrganizerSettingTab extends PluginSettingTab {
         slider
           .setLimits(0.0, 1.0, 0.05)
           .setValue(this.plugin.settings.temperature)
-          .setDynamicTooltip()
           .onChange(async (val) => {
             this.plugin.settings.temperature = val;
             await this.plugin.saveSettings();
@@ -74,7 +73,7 @@ export class LocalOrganizerSettingTab extends PluginSettingTab {
       );
 
     // Feature Toggles
-    containerEl.createEl("h3", { text: "Distillation Output" });
+    new Setting(containerEl).setName("Distillation Output").setHeading();
 
     new Setting(containerEl)
       .setName("Prepend Distilled Summary")
@@ -124,7 +123,7 @@ export class LocalOrganizerSettingTab extends PluginSettingTab {
           })
       );
 
-    containerEl.createEl("h3", { text: "Folder Organization & Bulk Processing" });
+    new Setting(containerEl).setName("Folder Organization & Bulk Processing").setHeading();
 
     new Setting(containerEl)
       .setName("Rename Notes to AI Topic Title")
@@ -162,7 +161,7 @@ export class LocalOrganizerSettingTab extends PluginSettingTab {
           })
       );
 
-    containerEl.createEl("h3", { text: "Sync Conflicts (Syncthing / Obsidian Sync)" });
+    new Setting(containerEl).setName("Sync Conflicts (Syncthing / Obsidian Sync)").setHeading();
 
     new Setting(containerEl)
       .setName("Auto-Scan for Sync Conflicts on Startup")
@@ -188,7 +187,7 @@ export class LocalOrganizerSettingTab extends PluginSettingTab {
           })
       );
 
-    containerEl.createEl("h3", { text: "Concept Discovery & Reference Primers" });
+    new Setting(containerEl).setName("Concept Discovery & Reference Primers").setHeading();
 
     new Setting(containerEl)
       .setName("Auto-Discover Novel Concepts")
@@ -216,7 +215,7 @@ export class LocalOrganizerSettingTab extends PluginSettingTab {
       );
 
     // Context Window Limits
-    containerEl.createEl("h3", { text: "Context Window Limits" });
+    new Setting(containerEl).setName("Context Window Limits").setHeading();
 
     new Setting(containerEl)
       .setName("Max Vault Tags in Context")
@@ -266,7 +265,7 @@ export class LocalOrganizerSettingTab extends PluginSettingTab {
       );
 
     // Network & Security Policy
-    containerEl.createEl("h3", { text: "Network Access & Security (Domain Whitelist)" });
+    new Setting(containerEl).setName("Network Access & Security (Domain Whitelist)").setHeading();
     containerEl.createEl("p", {
       text: "Vault Distiller runs 100% locally with Ollama. Remote network access is strictly governed by this domain whitelist. Only web requests to domains matching this list are permitted; all other outbound requests are blocked.",
       cls: "setting-item-description",
@@ -317,7 +316,7 @@ export class LocalOrganizerSettingTab extends PluginSettingTab {
       );
 
     // Support & Funding
-    containerEl.createEl("h2", { text: "Support Vault Distiller" });
+    new Setting(containerEl).setName("Support Vault Distiller").setHeading();
     new Setting(containerEl)
       .setName("Support Development on Ko-fi")
       .setDesc(
@@ -333,7 +332,7 @@ export class LocalOrganizerSettingTab extends PluginSettingTab {
       );
 
     // Auto-fetch models in the background on settings open
-    this.refreshModels(false);
+    void this.refreshModels(false);
   }
 
   private rebuildDropdown(): void {
@@ -357,7 +356,7 @@ export class LocalOrganizerSettingTab extends PluginSettingTab {
     } else if (defaultModel) {
       this.modelDropdown.setValue(defaultModel);
       this.plugin.settings.selectedModel = defaultModel;
-      this.plugin.saveSettings();
+      void this.plugin.saveSettings();
     }
   }
 

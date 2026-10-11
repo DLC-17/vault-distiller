@@ -13,7 +13,7 @@ export interface FetchedContent {
  * Detects if a string is or contains an HTTP/HTTPS URL.
  */
 export function extractUrlFromText(text: string): string | null {
-  const match = text.match(/https?:\/\/[^\s<>"')]+(?:\([^\s<>"')]*\)|[^\s`!()\[\]{};:'".,<>?«»“”‘’])/i);
+  const match = text.match(/https?:\/\/[^\s<>"')]+(?:\([^\s<>"')]*\)|[^\s`!()[\]{};:'".,<>?«»“”‘’])/i);
   return match ? match[0] : null;
 }
 
@@ -21,14 +21,14 @@ export function extractUrlFromText(text: string): string | null {
  * Checks if a URL points to arXiv.org.
  */
 export function isArxivUrl(url: string): boolean {
-  return /arxiv\.org\/(?:abs|pdf)\/(\d+\.\d+(?:v\d+)?|[a-z\-]+(?:\.[a-z\-]+)?\/\d+)/i.test(url);
+  return /arxiv\.org\/(?:abs|pdf)\/(\d+\.\d+(?:v\d+)?|[a-z-]+(?:\.[a-z-]+)?\/\d+)/i.test(url);
 }
 
 /**
  * Extracts arXiv paper ID from an arXiv URL.
  */
 export function extractArxivId(url: string): string | null {
-  const match = url.match(/arxiv\.org\/(?:abs|pdf)\/([0-9]+\.[0-9]+(?:v[0-9]+)?|[a-z\-]+(?:\.[a-z\-]+)?\/[0-9]+)/i);
+  const match = url.match(/arxiv\.org\/(?:abs|pdf)\/([0-9]+\.[0-9]+(?:v[0-9]+)?|[a-z-]+(?:\.[a-z-]+)?\/[0-9]+)/i);
   if (match) {
     return match[1].replace(/\.pdf$/i, "");
   }
@@ -278,7 +278,19 @@ export async function fetchTechnicalDocumentation(
       },
     });
 
-    const data = response.json;
+    interface WikiRestResponse {
+      title?: string;
+      extract?: string;
+      type?: string;
+      description?: string;
+      content_urls?: {
+        desktop?: {
+          page?: string;
+        };
+      };
+    }
+
+    const data = response.json as WikiRestResponse | undefined;
     if (data && data.title && data.extract && data.type !== "disambiguation") {
       const pageUrl =
         data.content_urls?.desktop?.page ||

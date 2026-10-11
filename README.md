@@ -145,6 +145,11 @@ To guarantee privacy and protect against unexpected outbound traffic:
 - **No Cloud AI / No Telemetry**: All LLM processing runs strictly on your local Ollama instance (`127.0.0.1`). Zero analytics, telemetry, or user data are ever collected or sent to remote servers.
 - **Safe Vault Modification**: All file mutations operate strictly within your vault via Obsidian's official APIs (`app.fileManager.processFrontMatter`, `app.vault.process`, and `app.vault.trash`).
 
+### Permissions & Data Handling
+- **Vault Enumeration (`app.vault.getMarkdownFiles`, `getAllLoadedFiles`)**: Used exclusively to index existing note titles for halluncination-proof `[[wikilink]]` suggestions, locate `.sync-conflict` files, and discover vault folders. No file names or paths ever leave your local machine.
+- **Clipboard Access**: Strictly write-only (`navigator.clipboard.writeText`). Invoked only when you explicitly click the "Copy" button on an AI response in Chat Studio. The plugin never reads from or monitors your clipboard.
+- **Release Provenance**: All release assets (`main.js`, `manifest.json`, `styles.css`) include official GitHub artifact attestations signed via Sigstore, allowing cryptographic verification of build origin.
+
 ---
 
 ## Building from Source
