@@ -28,7 +28,6 @@ export class LocalOrganizerSettingTab extends PluginSettingTab {
     const { containerEl } = this;
     containerEl.empty();
 
-    new Setting(containerEl).setName("General").setHeading();
     containerEl.createEl("p", {
       text: "Distill notes, extract actionable tasks, and organize vault knowledge using your local Ollama instance.",
       cls: "setting-item-description",
