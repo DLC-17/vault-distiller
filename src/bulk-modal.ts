@@ -11,7 +11,6 @@ export class BulkOrganizeModal extends Modal {
   private skipOrganized: boolean;
   private autoRename: boolean;
   private autoMove: boolean;
-  private isRunning: boolean = false;
   private isCancelled: boolean = false;
 
   constructor(app: App, plugin: LocalOrganizerPlugin) {
@@ -191,7 +190,6 @@ export class BulkOrganizeModal extends Modal {
     appendLog: (msg: string) => void,
     stopBtn: HTMLButtonElement
   ): Promise<void> {
-    this.isRunning = true;
     this.isCancelled = false;
 
     let processedCount = 0;
@@ -276,7 +274,6 @@ export class BulkOrganizeModal extends Modal {
       await new Promise((r) => window.setTimeout(r, 60));
     }
 
-    this.isRunning = false;
     statusText.setText(
       `Finished! Processed ${processedCount} note(s), renamed ${renamedCount}, relocated ${movedCount} to folders.`
     );

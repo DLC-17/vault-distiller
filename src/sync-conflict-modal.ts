@@ -17,7 +17,6 @@ interface ConflictItemState {
 export class SyncConflictModal extends Modal {
   plugin: LocalOrganizerPlugin;
   private items: ConflictItemState[] = [];
-  private isRunning: boolean = false;
   private isCancelled: boolean = false;
 
   constructor(app: App, plugin: LocalOrganizerPlugin) {
@@ -174,7 +173,6 @@ export class SyncConflictModal extends Modal {
     appendLog: (msg: string) => void,
     stopBtn: HTMLButtonElement
   ): Promise<void> {
-    this.isRunning = true;
     this.isCancelled = false;
     let successCount = 0;
     let failedCount = 0;
@@ -201,7 +199,6 @@ export class SyncConflictModal extends Modal {
       }
     }
 
-    this.isRunning = false;
     statusText.setText(`Finished! Successfully resolved ${successCount} conflict(s). ${failedCount > 0 ? `(${failedCount} failed)` : ""}`);
     stopBtn.setText("Done");
     stopBtn.className = "mod-cta";

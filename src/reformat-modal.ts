@@ -15,7 +15,6 @@ export class ReformatConventionModal extends Modal {
   plugin: LocalOrganizerPlugin;
   private selectedFolder: string = "__ALL__";
   private isCancelled: boolean = false;
-  private isRunning: boolean = false;
 
   constructor(app: App, plugin: LocalOrganizerPlugin) {
     super(app);
@@ -165,7 +164,6 @@ export class ReformatConventionModal extends Modal {
     appendLog: (msg: string) => void,
     stopBtn: HTMLButtonElement
   ): Promise<void> {
-    this.isRunning = true;
     this.isCancelled = false;
 
     let reformattedCount = 0;
@@ -207,7 +205,6 @@ export class ReformatConventionModal extends Modal {
       await new Promise((r) => window.setTimeout(r, 20));
     }
 
-    this.isRunning = false;
     statusText.setText(
       `Finished! Reformatted ${reformattedCount} note(s), renamed ${renamedCount} file(s).`
     );

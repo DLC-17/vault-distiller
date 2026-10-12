@@ -22,7 +22,6 @@ export class ConceptReviewModal extends Modal {
   private originatingFile: TFile;
   private items: ConceptItemState[];
   private isCancelled: boolean = false;
-  private isRunning: boolean = false;
 
   constructor(
     app: App,
@@ -181,7 +180,6 @@ export class ConceptReviewModal extends Modal {
     appendLog: (msg: string) => void,
     stopBtn: HTMLButtonElement
   ): Promise<void> {
-    this.isRunning = true;
     this.isCancelled = false;
     let createdCount = 0;
 
@@ -246,7 +244,6 @@ export class ConceptReviewModal extends Modal {
       await new Promise((r) => window.setTimeout(r, 60));
     }
 
-    this.isRunning = false;
     statusText.setText(`Finished! Successfully created ${createdCount} concept primer(s).`);
     stopBtn.setText("Done");
     stopBtn.className = "mod-cta";
